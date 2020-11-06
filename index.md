@@ -1,37 +1,49 @@
-## Welcome to GitHub Pages
+const fs = require("fs-extra") // note: not being used just yet
+const ejs = require("ejs")
+const argv = require("yargs-parser")(process.argv.slice(2))
+const path = require("path")
 
-You can use the [editor on GitHub](https://github.com/Xpexdex/AN_ATEMPT/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+const main = () => {
+  // 1. Welcome log
+  console.log("Generating template...")
+  try {
+    // 2. Destructure args from argv and set _ array to variable "data"
+    const { _: leftovers, out, fn } = argv
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+    // 3. Add the args we want to use in the .ejs template
+    // to an object
+    const data = {
+      fn,
+      leftovers,
+    }
 
-### Markdown
+    // 4. Create an empty options object to pass to the
+    // ejs.renderFile function (we are keeping defaults)
+    const options = {}
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+    // 5. Check that the required flags are in
+    if (!out || !fn) {
+      console.error("--out and --fn flag required")
+      process.exit(1)
+    }
 
-```markdown
-Syntax highlighted code block
+    // 6. Set our ejs template file, nominating it to read the
+    // sibling "main.ejs" file sibling in the same directory
+    const filename = path.join(__dirname, "./main.ejs")
 
-# Header 1
-## Header 2
-### Header 3
+    // 7. Run the renderFile, passing the required args
+    // as outlined on the package docs.
+    ejs.renderFile(filename, data, options, function(err, str) {
+      // str => Rendered HTML string
+      if (err) {
+        console.error(err)
+      }
 
-- Bulleted
-- List
+      console.log(str)
+    })
+  } catch (err) {
+    console.error(err)
+  }
+}
 
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/Xpexdex/AN_ATEMPT/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+main()
